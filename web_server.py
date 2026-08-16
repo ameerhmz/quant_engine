@@ -804,8 +804,8 @@ if __name__ == "__main__":
         from broker_bridge import LiveMarketPaperEngine
     except ImportError:
         from .broker_bridge import LiveMarketPaperEngine
-    engine = LiveMarketPaperEngine()
-    server_url = launch_institutional_web_server(engine, port=8000, auto_open_browser=False)
+    default_port = int(os.getenv("PORT", 7860))
+    server_url = launch_institutional_web_server(engine, port=default_port, auto_open_browser=False)
     print(f"Server running in headless mode for 24/7 operation at: {server_url}")
     print("Press Ctrl+C to terminate.")
     try:
