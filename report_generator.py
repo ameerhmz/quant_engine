@@ -9,12 +9,16 @@ import os
 import json
 import datetime
 import numpy as np
-from .fx_rates import get_live_usd_inr_rate, usd_to_inr, usd_to_inr_lakhs
+try:
+    from fx_rates import get_live_usd_inr_rate, usd_to_inr, usd_to_inr_lakhs
+except ImportError:
+    from .fx_rates import get_live_usd_inr_rate, usd_to_inr, usd_to_inr_lakhs
 
 class AutoReportGenerator:
-    def __init__(self, md_path="/Users/ameerhamza/PAPER_TRADING_REPORT.md", html_path="/Users/ameerhamza/paper_trading_dashboard.html"):
-        self.md_path = md_path
-        self.html_path = html_path
+    def __init__(self, md_path=None, html_path=None):
+        home = os.path.expanduser("~")
+        self.md_path = md_path or os.path.join(home, "PAPER_TRADING_REPORT.md")
+        self.html_path = html_path or os.path.join(home, "paper_trading_dashboard.html")
 
     def generate(self, ledger_data):
         """Generates both Markdown and HTML reports from live ledger data."""

@@ -6,6 +6,8 @@ High-Performance Institutional Financial Web Dashboard & Telemetry Server
 - Dynamically converts USD to INR using real-time live FX rate API
 """
 
+import os
+import sys
 import time
 import json
 import socket
@@ -13,7 +15,10 @@ import threading
 import webbrowser
 import numpy as np
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
-from .fx_rates import get_live_usd_inr_rate, usd_to_inr, usd_to_inr_lakhs
+try:
+    from fx_rates import get_live_usd_inr_rate, usd_to_inr, usd_to_inr_lakhs
+except ImportError:
+    from .fx_rates import get_live_usd_inr_rate, usd_to_inr, usd_to_inr_lakhs
 
 def get_free_port(default_port=8888):
     for port in range(default_port, default_port + 20):

@@ -14,8 +14,10 @@ import datetime
 import threading
 import urllib.request
 import urllib.parse
-from concurrent.futures import ThreadPoolExecutor
-from .report_generator import AutoReportGenerator
+try:
+    from report_generator import AutoReportGenerator
+except ImportError:
+    from .report_generator import AutoReportGenerator
 
 class BaseBrokerBridge:
     def __init__(self, mode="PAPER"):
