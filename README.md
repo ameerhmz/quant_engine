@@ -1,3 +1,15 @@
+---
+title: QuantEngine
+emoji: ⚡
+colorFrom: blue
+colorTo: green
+sdk: gradio
+sdk_version: 4.44.0
+app_file: app.py
+pinned: false
+license: mit
+---
+
 # ⚡ QuantEngine
 
 > **High-Performance Quantitative Research & Statistical Arbitrage Engine**  
