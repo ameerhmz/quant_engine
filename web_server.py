@@ -771,20 +771,45 @@ class FastInstitutionalDashboardHandler(BaseHTTPRequestHandler):
 </html>
 """
 
-def launch_institutional_web_server(portfolio_engine, port=8888, auto_open_browser=True):
+def launch_institutional_web_server(portfolio_engine, port=8888, auto_open_browser=True, host=None):
     """
     Spawns the high-performance ThreadingHTTPServer in a background thread.
     """
+    bind_host = host or os.getenv("HOST", "0.0.0.0")
     actual_port = get_free_port(port)
     FastInstitutionalDashboardHandler.portfolio_engine = portfolio_engine
     
-    server = ThreadingHTTPServer(('127.0.0.1', actual_port), FastInstitutionalDashboardHandler)
+    server = ThreadingHTTPServer((bind_host, actual_port), FastInstitutionalDashboardHandler)
     server.daemon_threads = True
     server_thread = threading.Thread(target=server.serve_forever, daemon=True)
     server_thread.start()
     
-    url = f"http://127.0.0.1:{actual_port}"
-    if auto_open_browser:
-        threading.Thread(target=lambda: (time.sleep(0.8), webbrowser.open(url)), daemon=True).start()
+    url = f"http://{bind_host}:{actual_port}"
+    print(f"🚀 [QuantEngine Dashboard] Live on {url} (Bound to {bind_host}:{actual_port})")
+    
+    is_headless = bool(os.getenv("HEADLESS")) or ("DISPLAY" not in os.environ and sys.platform != "darwin")
+    if auto_open_browser and not is_headless:
+        def _open():
+            time.sleep(0.8)
+            try:
+                webbrowser.open(f"http://127.0.0.1:{actual_port}")
+            except Exception:
+                pass
+        threading.Thread(target=_open, daemon=True).start()
 
     return url
+
+if __name__ == "__main__":
+    try:
+        from broker_bridge import LiveMarketPaperEngine
+    except ImportError:
+        from .broker_bridge import LiveMarketPaperEngine
+    engine = LiveMarketPaperEngine()
+    server_url = launch_institutional_web_server(engine, port=8000, auto_open_browser=False)
+    print(f"Server running in headless mode for 24/7 operation at: {server_url}")
+    print("Press Ctrl+C to terminate.")
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\nStopping QuantEngine server.")

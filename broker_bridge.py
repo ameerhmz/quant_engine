@@ -39,17 +39,19 @@ class AlpacaPaperBridge(BaseBrokerBridge):
     """
     def __init__(self, api_key=None, api_secret=None):
         super().__init__(mode="ALPACA_PAPER")
-        env_path = "/Users/ameerhamza/.env"
+        env_path = os.path.join(os.path.expanduser("~"), ".env")
+        local_env = os.path.join(os.path.dirname(__file__), ".env")
         env_vars = {}
-        if os.path.exists(env_path):
-            try:
-                with open(env_path, "r") as f:
-                    for line in f:
-                        if "=" in line and not line.startswith("#"):
-                            k, v = line.strip().split("=", 1)
-                            env_vars[k.strip()] = v.strip()
-            except Exception:
-                pass
+        for ep in [env_path, local_env]:
+            if os.path.exists(ep):
+                try:
+                    with open(ep, "r") as f:
+                        for line in f:
+                            if "=" in line and not line.startswith("#"):
+                                k, v = line.strip().split("=", 1)
+                                env_vars[k.strip()] = v.strip()
+                except Exception:
+                    pass
 
         self.api_key = api_key or os.getenv("APCA_API_KEY_ID", "") or env_vars.get("APCA_API_KEY_ID", "")
         self.api_secret = api_secret or os.getenv("APCA_API_SECRET_KEY", "") or env_vars.get("APCA_API_SECRET_KEY", "")
@@ -143,10 +145,10 @@ class LiveMarketPaperEngine(BaseBrokerBridge):
     - Tracks persistent portfolio balance and trade logs in paper_trading_ledger.json
     - Automatically updates PAPER_TRADING_REPORT.md and paper_trading_dashboard.html
     """
-    def __init__(self, initial_capital=100000.0, ledger_file="/Users/ameerhamza/paper_trading_ledger.json"):
+    def __init__(self, initial_capital=100000.0, ledger_file=None):
         super().__init__(mode="LIVE_FEED_PAPER")
         self.initial_capital = initial_capital
-        self.ledger_file = ledger_file
+        self.ledger_file = ledger_file or os.path.join(os.path.expanduser("~"), "paper_trading_ledger.json")
         self.equity = initial_capital
         self.cash = initial_capital
         self.positions = {}
